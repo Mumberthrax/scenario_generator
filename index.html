@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Procedural Scenario Generator</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; line-height: 1.6; }
+        .variable { font-weight: bold; color: #2c3e50; }
+        button { padding: 10px 20px; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="output-container"></div>
+    <button id="regen-btn">Generate New Scenario</button>
+
+    <script>
+        // 1. CATEGORICAL DATA (Arrays remain best for these)
+        const scenarioData = {
+            settings: ["Bermuda Triangle", "Abandoned Space Station", "Victorian London", "Coral Reef", "Castle", "Cyberpunk city", "Dense forest", "Icy tundra", "Arid desert", "Jungle", "Tropical island", "Destroyed city", "Mountainous", "Badlands", "Underdark", "Volcanic wasteland", "Swampy marshlands", "Open savanna", "Rolling grasslands", "Cave system", "Coral reef", "Snow-capped peaks", "Haunted forest", "Dystopian urban sprawl", "Underground labyrinth", "Highland moors", "Crystalline cavern", "Floating islands", "Astral plane", "Shadowy swamp", "Ocean depths", "Wind-swept plains", "Ruined temple", "Lush meadow", "Foggy moorland", "Arctic ice shelf", "Stormy seas", "Fungal forest", "Rocky plateau", "Sand dunes", "Burnt forest", "Lava-filled chasm", "Deep canyon", "Mystical floating city", "Overgrown ruins", "Enchanted glade", "Underwater city", "Savage coastline", "Crystal-studded desert", "Solar wasteland", "Aurora-lit tundra", "Misty lake", "Wind-whipped cliffs", "Frozen forest", "Ethereal void", "Charred volcanic ridge", "Alien jungle", "Obsidian field", "Ancient battlefield", "Salt flats", "Black sand beach", "not determined - select a novel environment"],
+
+            themes: ["ancient mythologies", "cyberpunk decay", "political intrigue", "survival horror", "space and interstellar travel", "old west", "high fantasy", "cyberpunk", "low fantasy", "isekai", "Pokemon world", "Harry Potter / Hogwarts", "Elder Scrolls", "Magical Girl Shoujo", "Dragonball (the anime - goku and saiyans and capsule corp etc.)", "science fiction", "superheroes", "ancient mythologies", "fairy tale", "Steampunk", "Post-apocalyptic", "Dystopian future", "Noir detective", "Modern urban fantasy", "Pirates and high seas adventure", "Feudal Japan (samurai and ninjas)", "Vampire and gothic horror", "Lovecraftian cosmic horror", "Medieval Europe-inspired setting", "Wild jungle exploration", "Time-travel adventures", "Underwater civilizations", "Dreamscapes or surreal worlds", "Dark fantasy", "Alien invasion and resistance", "World War-themed", "Espionage and secret agents", "Virtual reality or gaming world", "Celtic mythology-inspired setting", "Ancient Egyptian mythology and culture", "Greek and Roman pantheon adventures", "Renaissance-inspired world", "World of giants and titans", "Wizarding school or academy", "Mystical Eastern-inspired setting", "Fantasy wilderness survival", "Mega-cities of the far future", "Stone Age fantasy or prehistoric world", "Alien ecosystems on a terraformed planet", "Desert kingdoms with sand magic", "Space pirates and smugglers", "Fantasy industrial revolution", "Celestial or astral plane exploration", "Haunted mansions and cursed lands", "Wuxia (martial arts fantasy)", "Fantasy sports tournament", "Shonen anime-inspired power battles", "Sky pirates and floating islands", "Futuristic utopia with hidden dystopia", "Cursed worlds or lands with constant storms", "Biopunk (genetic engineering-focused)", "Magitech worlds", "Parallel universe exploration", "Battle royale-style survival games", "something really novel and creative that nobody would expect"],
+
+            challenges: ["a crumbling infrastructure", "a moral dilemma", "a mysterious plague", "hunger and thirst", "weather", "confusion or drugs", "monster attack", "wild animals", "illness", "bandits or thugs", "angry people", "phantoms", "tied up or handcuffed", "injured", "caught in spiderweb", "large carnivorous plant", "demons", "extraterrestrial aliens", "evil spirits", "natural disaster", "impending explosion", "radiation or biohazard", "swarms of bugs", "giant spider", "flying creatures", "enemy soldiers", "zombies", "sorcerers", "cultists", "sheogorath the 'god of madness'", "lovecraftian", "Poisonous plants", "Collapsed tunnels or structures", "Quicksand", "Hostile tribes or clans", "Mind control or telepathic assault", "Hallucinogenic mist or spores", "Cursed artifacts", "Time loops or time distortion", "Hostile AI or machines", "Plague outbreak", "Rival adventurers", "Shapeshifters or doppelgangers", "Falling debris or meteor shower", "Magical traps or wards", "Volcanic eruption", "Sudden floods or flash floods", "Psychic attacks", "Shadowy assassins", "Undead armies", "Malfunctioning technology", "Haunted artifacts", "Parasitic creatures", "Interdimensional rifts", "Toxic or corrosive environments", "Hostage situations", "Invisible enemies", "Traitor in the group", "Blinding or obscuring fog", "Swarming fish or aquatic predators", "Unseen predators; stalkers", "something really novel and creative that nobody would expect"],
+
+            threatlevel: ["almost nonexistent", "very low", "low", "moderate", "high", "very high", "extreme", "unwinnable"],
+
+            inventories: ["A mix of sentimental trinkets", "Only a rusty knife", "Advanced hacking equipment", "totally empty - completely nude", "empty apart from clothes being worn", "only incidentals like they might carry on a normal day (unlike today)", "extremely minimal survival gear - only a couple of items", "very basic survival gear", "a modest survival kit", "tools befitting the circumstances", "an overflowing wallet and fancy clothes", "absolutely stacked and prepared for the circumstances ahead", "A bag of random junk with no clear utility", "One single mysterious item of great importance", "A mix of sentimental trinkets and practical tools", "A magical artifact with undefined capabilities", "A single weapon with no ammunition or energy", "Heavy cumbersome equipment unsuitable for the setting", "A misfit collection of mismatched gear scavenged in haste", "A set of gear optimized for a completely different environment", "An unusual high tech device they do not understand", "A perfectly organized inventory; almost too neat", "An enchanted container that appears empty but isn't", "A collection of half-broken tools or damaged gear", "A single-use item with immense power or utility", "A cursed item that complicates everything", "A wallet stuffed with useless currency from a foreign land", "Clothes with hidden pockets containing tiny but useful items", "A pocket full of small edible treats and no tools", "An eccentric assortment of magical ingredients or reagents", "A survival kit missing one key component", "Several outdated gadgets with questionable functionality", "A bag full of disguise gear or costumes", "A treasure map but no tools to follow it", "A highly valuable item with no clear purpose (yet)", "A portable lab or workshop for crafting and repairs", "A *lucky* item with sentimental but dubious utility", "A collection of encrypted data chips with no reader", "A stack of IOUs or debts owed to them", "A journal filled with cryptic notes or sketches", "Only a weapon with no sheath or holster", "A first-aid kit that's fully stocked but outdated", "A child's toy with hidden compartments", "A seemingly bottomless bag full of mundane items", "An animal companion carrying the bulk of the gear", "Several containers - each with an unknown substance", "One exceptionally rare or illegal item", "A backpack rigged with elaborate traps", "An ancient key with no matching lock in sight", "Clothing made of adaptable or transforming material", "A bulky heirloom weapon that's hard to carry", "A personal drone carrying essential supplies", "Only their wits and what they can scavenge on the spot", "undetermined"],
+
+            randomevent: ["an elevated challenge", "a new companion", "a love interest", "a rival", "a mystery", "something dramatic", "a surprising boon", "a curious character", "A powerful antagonist", "A forbidden secret", "A cryptic message or prophecy", "A life-altering accident or event", "A shocking betrayal", "A rare artifact or treasure", "A sudden twist in plans", "A mentor figure with cryptic advice", "A looming threat or deadline", "A moral dilemma", "An unusual setting detail that hints at a larger story", "A revelation about the protagonist's past", "A strange phenomenon", "A hidden talent or power", "A competing group or faction", "An impossible choice", "A suspicious ally", "A significant loss", "A recurring symbol or motif", "A moment of eerie calm before chaos", "A glimpse of the worlds mythology or lore", "A tantalizing clue to the story's main goal", "An urgent mission or task", "A misstep with lasting consequences", "A misunderstood villain", "A fleeting vision or dream with deeper implications", "An odd custom or rule unique to the setting", "A ticking clock scenario", "A clash of ideals between characters", "A hidden ally or secret supporter", "A strange and unexplained illness or condition", "A warning that seems innocuous but foreshadows major events", "An unresolved question from a prior story (in sequels)", "A rival group with a head start on the same goal", "A drastic change in status quo", "An unexplained absence of a key figure", "A test of loyalty", "An otherworldly visitor", "A seemingly mundane object with hidden significance", "An unexpected reunion with someone from the past", "A sudden restriction or new law", "An opportunity that seems too good to be true"]
+        };
+
+        const sideCharData = {
+            gender: ["male", "female", "unknown"],
+            age: ["adult", "child", "teenager", "elderly", "young adult", "middle aged", "unknown age"],
+            nature: ["friendly", "playful", "timid", "aggressive", "passive", "neutral", "unstable", "manic", "depressed", "fearful", "angry", "joyful", "flirtatious", "solemn", "energetic", "slothful", "passionate", "studious", "strong", "religious"],
+            iq: ["smart", "brilliant", "average intelligence", "dumb", "idiot"],
+            relation: ["companion", "adversary", "traveler", "helper", "follower", "sibling", "cousin", "friend", "nemesis", "stranger", "leader/superior", "teacher/mentor", "subordinate", "romantic interest"]
+        };
+
+        // 2. STRUCTURED DATE DATA (Mapping Months to Seasons)
+        const dateData = [
+            { month: "January", season: "Winter" },
+            { month: "February", season: "Winter" },
+            { month: "March", season: "Spring" },
+            { month: "April", season: "Spring" },
+            { month: "May", season: "Spring" },
+            { month: "June", season: "Summer" },
+            { month: "July", season: "Summer" },
+            { month: "August", season: "Summer" },
+            { month: "September", season: "Autumn" },
+            { month: "October", season: "Autumn" },
+            { month: "November", season: "Autumn" },
+            { month: "December", season: "Winter" }
+        ];
+
+        // 3. LOGIC ENGINE: Helpers
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function generateTime() {
+            const hour = Math.floor(Math.random() * 12) + 1; // 1-12
+            const minute = Math.floor(Math.random() * 60);   // 0-59
+            const meridiem = getRandomItem(["AM", "PM"]);
+            
+            // Pad minute with leading zero if needed (e.g., 5 -> 05)
+            const formattedMinute = String(minute).padStart(2, '0');
+            
+            return `${hour}:${formattedMinute} ${meridiem}`;
+        }
+
+        function generateDate() {
+            const dateObj = getRandomItem(dateData);
+            const day = Math.floor(Math.random() * 31) + 1; // 1-31
+            return `${dateObj.season}; ${dateObj.month} ${day}`;
+        }
+
+        function generateSideCharacter() {
+            // Select values
+            const gender = getRandomItem(sideCharData.gender);
+            const age = getRandomItem(sideCharData.age);
+            const nature = getRandomItem(sideCharData.nature);
+            const iq = getRandomItem(sideCharData.iq);
+            const relation = getRandomItem(sideCharData.relation);
+
+            // Assemble attributes using Map + Join
+            // This wraps each value in a span, then joins them with commas
+            const attributes = [gender, age, nature, iq, relation]
+//                .map(val => `<span class="variable">${val}</span>`)
+                .join(', ');
+
+            return `${attributes}`;
+        }
+
+        // 4. MAIN ASSEMBLY
+        function generateScenario() {
+            const setting   = getRandomItem(scenarioData.settings);
+            const time      = generateTime(); // Call function instead of array lookup
+            const date      = generateDate(); // Call function instead of array lookup
+            const theme     = getRandomItem(scenarioData.themes);
+            const challenge = getRandomItem(scenarioData.challenges);
+            const threat    = getRandomItem(scenarioData.threatlevel);
+            const inventory = getRandomItem(scenarioData.inventories);
+            const event     = getRandomItem(scenarioData.randomevent);
+            const sideCharacter = generateSideCharacter(); 
+
+            const htmlContent = `
+                <p>The setting is <span class="variable">${setting}</span>.</p>
+                <p>The time of day is <span class="variable">${time}</span>.</p>
+                <p>The date is <span class="variable">${date}</span>.</p>
+                <p>The theme for the setting is: <span class="variable">${theme}</span>, including many relevant tropes.</p>
+                <p>The type of challenge the player is facing is: <span class="variable">${challenge}</span>.</p>
+                <p>The threat level of the scenario is: <span class="variable">${threat}</span>. Use this threat level when formulating the challenge details.</p>
+                <p>The user's inventory is: <span class="variable">${inventory}</span>.</p>
+                <p>After a few turns, <span class="variable">${event}</span> should be introduced.</p>
+                <p>A side character in this scenario is likely to be: <span class="variable">${sideCharacter}</span>.</p>
+            `;
+
+            document.getElementById('output-container').innerHTML = htmlContent;
+        }
+
+        // 5. INTERACTION
+        document.addEventListener('DOMContentLoaded', generateScenario);
+        document.getElementById('regen-btn').addEventListener('click', generateScenario);
+    </script>
+</body>
+</html>
